@@ -9,6 +9,14 @@ import ConfirmationPopup from "./ConfirmationPopup";
 import ImagePopup from "./ImagePopup";
 import api from "../utils/api";
 import { CurrentUserContext } from "../contexts/CurrentUserContext";
+import { Route, Switch, useHistory } from "react-router-dom";
+import Login from "./Login";
+import Register from "./Register";
+import * as auth from "../utils/auth";
+import ProtectedRoute from "./ProtectedRoute";
+import InfoTooltip from './InfoTooltip';
+import okIcon from "../images/OK.svg";
+import nokIcon from "../images/NOK.svg";
 
 function App() {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = React.useState(
@@ -20,11 +28,17 @@ function App() {
   );
   const [isConfirmPopupOpen, setIsConfirmPopupOpen] = React.useState(false);
   const [isImagePopupOpen, setIsImagePopupOpen] = React.useState(false);
+  const [isInfoTooltipOpen, setIsInfoTooltipOpen] = React.useState(false);
   const [selectedCard, setSelectedCard] = React.useState(null);
   const [currentUser, setCurrentUser] = React.useState({});
   const [cards, setCards] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [loggedIn, setLoggedIn] = React.useState(false);
+  const [registered, setRegistered] = React.useState(false);
+  const [message, setMessage] = React.useState("");
+  const [email, setEmail] = React.useState("");
   const cardId = React.useRef("");
+  const history = useHistory();
 
   React.useEffect(() => {
     Promise.all([api.getUserInfo(), api.getInitialCards()])
@@ -107,6 +121,7 @@ function App() {
     setIsAddPlacePopupOpen(false);
     setIsImagePopupOpen(false);
     setIsConfirmPopupOpen(false);
+    setIsInfoTooltipOpen(false);
     setSelectedCard(null);
   }
 
@@ -152,20 +167,75 @@ function App() {
       });
   }
 
+  function onSignOut() {
+    setLoggedIn(false);
+    localStorage.removeItem("jwt");
+    history.push("/sign-in");
+  }
+
+  function onRegister(email, password) {
+    auth.register(email, password).then((res) => {
+      if (res) {
+        setMessage("Вы успешно зарегистрировались!");
+        setRegistered(true);
+        history.push("/sign-in");
+      } else {
+        setMessage("Что-то пошло не так! Попробуйте ещё раз.");
+        setRegistered(false);
+      }
+    });
+    setIsInfoTooltipOpen(true);
+  }
+
+  function onLogin() {
+    setLoggedIn(true);
+  }
+
+  React.useEffect(() => {
+    handleCheckToken();
+  });
+
+  function handleCheckToken() {
+    if (localStorage.getItem("jwt")) {
+      const jwt = localStorage.getItem("jwt");
+      auth.checkToken(jwt).then((res) => {
+        if (res) {
+          setEmail(res.data.email);
+          setLoggedIn(true);
+          history.push("/");
+        }
+      });
+    }
+  }
+
   return (
     <CurrentUserContext.Provider value={currentUser}>
-      <Header />
-      <Main
-        onEditProfile={handleEditProfileClick}
-        onAddPlace={handleAddPlaceClick}
-        onEditAvatar={handleEditAvatarClick}
-        onCardClick={handleCardClick}
-        cards={cards}
-        onCardLike={handleCardLike}
-        onCardDeleteConfirm={handleConfirmClick}
-        showLoader={isLoading}
-      />
-      <Footer />
+      {loggedIn && (
+        <Header email={email} onClick={onSignOut} menuText="Выйти" />
+      )}
+      <Switch>
+        <ProtectedRoute
+          exact
+          path="/"
+          component={Main}
+          onEditProfile={handleEditProfileClick}
+          onAddPlace={handleAddPlaceClick}
+          onEditAvatar={handleEditAvatarClick}
+          onCardClick={handleCardClick}
+          cards={cards}
+          onCardLike={handleCardLike}
+          onCardDeleteConfirm={handleConfirmClick}
+          showLoader={isLoading}
+          loggedIn={loggedIn}
+        />
+        <Route path="/sign-in">
+          <Login onLogin={onLogin} />
+        </Route>
+        <Route path="/sign-up">
+          <Register onRegister={onRegister} />
+        </Route>
+      </Switch>
+      {loggedIn && <Footer />}
       <EditProfilePopup
         isOpen={isEditProfilePopupOpen}
         onClose={closeAllPopups}
@@ -190,6 +260,13 @@ function App() {
         onClose={closeAllPopups}
         card={selectedCard}
         isOpen={isImagePopupOpen}
+      />
+      <InfoTooltip
+        isOpen={isInfoTooltipOpen}
+        onClose={closeAllPopups}
+        title={message}
+        name="tooltip"
+        icon={registered ? okIcon : nokIcon}
       />
     </CurrentUserContext.Provider>
   );
