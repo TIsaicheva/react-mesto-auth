@@ -14,7 +14,7 @@ import Login from "./Login";
 import Register from "./Register";
 import * as auth from "../utils/auth";
 import ProtectedRoute from "./ProtectedRoute";
-import InfoTooltip from './InfoTooltip';
+import InfoTooltip from "./InfoTooltip";
 import okIcon from "../images/OK.svg";
 import nokIcon from "../images/NOK.svg";
 
@@ -42,8 +42,7 @@ function App() {
 
   React.useEffect(() => {
     Promise.all([api.getUserInfo(), api.getInitialCards()])
-      .then((responses) => {
-        const [userInfo, initialCards] = responses;
+      .then(([userInfo, initialCards]) => {
         setCurrentUser(userInfo);
         setCards(initialCards);
       })
@@ -174,37 +173,53 @@ function App() {
   }
 
   function onRegister(email, password) {
-    auth.register(email, password).then((res) => {
-      if (res) {
-        setMessage("Вы успешно зарегистрировались!");
-        setRegistered(true);
-        history.push("/sign-in");
-      } else {
-        setMessage("Что-то пошло не так! Попробуйте ещё раз.");
-        setRegistered(false);
-      }
-    });
+    auth
+      .register(email, password)
+      .then((res) => {
+        if (res) {
+          setMessage("Вы успешно зарегистрировались!");
+          setRegistered(true);
+          history.push("/sign-in");
+        } else {
+          setMessage("Что-то пошло не так! Попробуйте ещё раз.");
+          setRegistered(false);
+        }
+      })
+      .catch((err) => console.log(err));
     setIsInfoTooltipOpen(true);
   }
 
-  function onLogin() {
-    setLoggedIn(true);
+  function onLogin(email, password) {
+    auth
+      .login(email, password)
+      .then((res) => {
+        if (res) {
+          setEmail(email)
+          setLoggedIn(true);
+          history.push("/");
+        }
+      })
+      .catch((err) => console.log(err));
   }
 
   React.useEffect(() => {
     handleCheckToken();
-  });
+    // eslint-disable-next-line
+  }, []);
 
   function handleCheckToken() {
     if (localStorage.getItem("jwt")) {
       const jwt = localStorage.getItem("jwt");
-      auth.checkToken(jwt).then((res) => {
-        if (res) {
-          setEmail(res.data.email);
-          setLoggedIn(true);
-          history.push("/");
-        }
-      });
+      auth
+        .checkToken(jwt)
+        .then((res) => {
+          if (res) {
+            setEmail(res.data.email);
+            setLoggedIn(true);
+            history.push("/");
+          }
+        })
+        .catch((err) => console.log(err));
     }
   }
 
@@ -235,7 +250,7 @@ function App() {
           <Register onRegister={onRegister} />
         </Route>
       </Switch>
-      {loggedIn && <Footer />}
+      <Footer />
       <EditProfilePopup
         isOpen={isEditProfilePopupOpen}
         onClose={closeAllPopups}

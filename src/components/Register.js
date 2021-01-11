@@ -49,7 +49,7 @@ function Register({ onRegister, onClose }) {
             className={`popup__form-error ${
                 errors.email && "popup__form-error_visible"
             }`}
-            id="signinForm-error"
+            id="email-error"
           >
             {errors.email || ''}
           </span>
@@ -67,7 +67,7 @@ function Register({ onRegister, onClose }) {
             className={`popup__form-error ${
                 errors.password && "popup__form-error_visible"
             }`}
-            id="signinForm-error"
+            id="password-error"
           >
             {errors.password || ''}
           </span>

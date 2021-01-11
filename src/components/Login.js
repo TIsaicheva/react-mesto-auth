@@ -1,32 +1,15 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
-import * as auth from "../utils/auth";
 import Header from "./Header";
+import { useFormValidation } from '../hooks/useFormValidation';
 
 function Login({ onLogin }) {
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  const [error, setError] = React.useState('');
   const history = useHistory();
-
-  function handleEmailChange(e) {
-    setEmail(e.target.value);
-  }
-
-  function handlePasswordChange(e) {
-    setPassword(e.target.value);
-  }
+  const { values, errors, handleChange} = useFormValidation();  
 
   function handleSubmit(e) {
     e.preventDefault();
-    auth.login(email, password).then((res) => {      
-      if (res) {
-        onLogin();
-        history.push("/");
-      }
-    }).catch((err) => {
-      setError(err.message);
-    });
+    onLogin(values.email, values.password);  
   }
 
   return (
@@ -55,9 +38,17 @@ function Login({ onLogin }) {
             minLength="2"
             maxLength="40"
             required
-            value={email}
-            onChange={handleEmailChange}
+            value={values.email || ''}
+            onChange={handleChange}
           />
+          <span
+            className={`popup__form-error ${
+                errors.email && "popup__form-error_visible"
+            }`}
+            id="email-error"
+          >
+            {errors.email || ''}
+          </span>
           <input
             className="popup__input popup__input_dark_theme popup__input_password"
             id="password"
@@ -65,10 +56,17 @@ function Login({ onLogin }) {
             placeholder="Пароль"
             name="password"
             required
-            value={password}
-            onChange={handlePasswordChange}
+            value={values.password || ''}
+            onChange={handleChange}
           />
-          <span className={`popup__form-error ${ error && 'popup__form-error_visible'}`} id="signinForm-error">{error}</span>
+          <span
+            className={`popup__form-error ${
+                errors.password && "popup__form-error_visible"
+            }`}
+            id="password-error"
+          >
+            {errors.password || ''}
+          </span>
           <button
             type="submit"
             className="popup__submit popup__submit_dark_theme"

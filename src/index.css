@@ -49,7 +49,11 @@
 @import url(../src/blocks/item/__like-icon/item__like-icon.css);
 @import url(../src/blocks/item/__like-icon/_active/item__like-icon_active.css);
 @import url(../src/blocks/menu/menu.css);
+@import url(../src/blocks/menu/__burger_close_icon/menu__burger_close_icon.css);
+@import url(../src/blocks/menu/__burger_lines_icon/menu__burger_lines_icon.css);
 @import url(../src/blocks/menu/__item/menu__item.css);
 @import url(../src/blocks/menu/__item_btn/menu__item_btn.css);
+@import url(../src/blocks/menu/__item_mobile/menu__item_mobile.css);
+@import url(../src/blocks/menu/__mobile/menu__mobile.css);
 @import url(../src/blocks/footer/footer.css);
 @import url(../src/blocks/footer/__copyright/footer__copyright.css);

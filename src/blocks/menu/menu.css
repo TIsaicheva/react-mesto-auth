@@ -10,41 +10,4 @@
   .menu {
     display: none;
   }
-
-  .menu__mobile {
-    width: 100%;
-    height: 120px;
-    margin: 0 auto;
-    padding: 40px 80px;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .menu__item_mobile {
-      padding-bottom: 18px;
-  }
-
-  .menu__burger_lines_icon {
-    width: 24px;
-    height: 24px;
-    background: url(../../images/burger_line.svg) no-repeat center;
-    cursor: pointer;
-  }
-
-  .menu__burger_lines_icon:hover {
-    background: url(../../images/burger_line_gr.svg) no-repeat center;
-  }
-
-  .menu__burger_close_icon {
-    width: 24px;
-    height: 24px;
-    background: url(../../images/close_burger.svg) no-repeat center;
-    cursor: pointer;
-  }
-
-  .menu__burger_close_icon:hover {
-    background: url(../../images/close_burger_gr.svg) no-repeat center;
-  }
 }
